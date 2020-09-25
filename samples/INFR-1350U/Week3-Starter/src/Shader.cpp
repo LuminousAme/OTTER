@@ -51,15 +51,14 @@ bool Shader::LoadShaderPart(const char* source, GLenum type)
 		// Delete the broken shader result 
 		glDeleteShader(handle); 
 		handle = 0;    
-
-		switch (type) {
-			case GL_VERTEX_SHADER: _vs = handle; break;
-			case GL_FRAGMENT_SHADER: _fs = handle; break;
-			default: LOG_WARN("Not implemented"); break;
-		}
-
-		return status != GL_FALSE;
 	}
+	switch (type) {
+	case GL_VERTEX_SHADER: _vs = handle; break;
+	case GL_FRAGMENT_SHADER: _fs = handle; break;
+	default: LOG_WARN("Not implemented"); break;
+	}
+
+	return status != GL_FALSE;
 }
 
 bool Shader::LoadShaderPartFromFile(const char* path, GLenum type) {
