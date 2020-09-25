@@ -30,25 +30,19 @@ namespace nou
 
 	void CSpriteAnimator::Update(float deltaTime)
 	{
-		if (m_isPlaying && m_anim->frames.size() != 0)
-		{
+		//TODO: Complete this function.
+		if (m_isPlaying && m_anim->frames.size() != 0) {
 			m_timer += deltaTime;
 
-			while (m_timer >= m_anim->frameTime)
-			{
+			while (m_timer >= m_anim->frameTime) {
 				m_timer -= m_anim->frameTime;
 				++m_frame;
 			}
 
-			if (m_frame >= m_anim->frames.size())
-			{
+			if (m_frame >= m_anim->frames.size()) {
 				m_isPlaying = m_loop;
 				m_isDone = !m_isPlaying;
 
-				//Prevents us from going out of bounds.
-				//Remember that the ? : is the ternary operator;
-				//If the statement before the ? is true, the line to the left of the : is executed.
-				//If the statement before the ? is false, the line to the right of the : is executed.
 				m_frame = (m_loop) ? m_frame % m_anim->frames.size() : m_anim->frames.size() - 1;
 			}
 

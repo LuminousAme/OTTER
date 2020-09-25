@@ -31,26 +31,22 @@ namespace nou
 		//Gets the animator from the entity.
 		auto& animator = m_owner->Get<CSpriteAnimator>();
 
+		if (GetTrigger("attack"))
+			m_state = AnimState::ATTACK;
+
 		ClearTriggers();
 
-		//Runs animation clips based off of state.
+		//TODO: Complete this function.
 		switch (m_state)
 		{
-			case AnimState::IDLE:
-
+		case AnimState::IDLE:
 			animator.PlayLoop(idleClip);
 			break;
-
-			case AnimState::RUN:
-
+		case AnimState::RUN:
 			animator.PlayLoop(runClip);
 			break;
-
-			//TODO (for today's task): Implement the attack state.
-
-			default:
-
-			break;
+		case AnimState::ATTACK:
+			animator.PlayOnce(attackClip);
 		}
 	}
 
@@ -59,28 +55,38 @@ namespace nou
 	{
 		auto& animator = m_owner->Get<CSpriteAnimator>();
 
-		//Perform any necessary updates and check for transitions between states.
+		//TODO: Complete this function.
+				//TODO: Complete this function.
 		switch (m_state)
 		{
-			case AnimState::IDLE:
+		case AnimState::IDLE:
 
+			if (GetVariable("moving"))
+				SetState(AnimState::RUN);
+
+			if (GetTrigger("attack"))
+				SetState(AnimState::ATTACK);
+
+			break;
+		case AnimState::RUN:
+
+			if (!GetVariable("moving"))
+				SetState(AnimState::IDLE);
+
+			if (GetTrigger("attack"))
+				SetState(AnimState::ATTACK);
+
+			break;
+		default:
+			//attack state
+			if (animator.IsDone()) {
 				if (GetVariable("moving"))
 					SetState(AnimState::RUN);
-
-				break;
-
-			case AnimState::RUN:
-
-				if (!GetVariable("moving"))
+				else
 					SetState(AnimState::IDLE);
+			}
 
-				break;
-
-			//TODO (for today's task): Implement the attack state.
-
-			default:
-
-				break;
+			break;
 		}
 	}	
 }
