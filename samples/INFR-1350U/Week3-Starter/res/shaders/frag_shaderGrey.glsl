@@ -9,6 +9,6 @@ void main() {
 	float greyVal = inColor.x + inColor.y + inColor.z; 
 	greyVal = greyVal / 3;
 
-	//insert the greyscale value in for all 3 R, B, and G values
+	//set the calculated greyscale value to all 3 of the RBG values (this produces a grayscale colour)
 	frag_color = vec4(greyVal, greyVal, greyVal, 1.0);
 }

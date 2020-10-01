@@ -29,6 +29,8 @@ namespace nou
 		void SetMode(PathSampler::PathMode mode);
 		void Update(const PathSampler::KeypointSet& keypoints, float deltaTime);
 
+		PathSampler::PathMode GetMode();
+
 		private:
 
 		Entity* m_owner;

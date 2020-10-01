@@ -64,8 +64,9 @@ bool initGLFW() {
 	}
 
 	//Create a new GLFW window
-	window = glfwCreateWindow(800, 800, "INFR1350U", nullptr, nullptr);
+	window = glfwCreateWindow(800, 800, "Ame Gilham - 100741352", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
+
 
 	// Set our window resized callback 
 	glfwSetWindowSizeCallback(window, GlfwWindowResizeCallback);
@@ -122,10 +123,10 @@ int main() {
 
 	static const float interleaved[] = {
 	//  X		Y		Z		R		G		B	
-		0.5f,	-0.5f,	0.5f,	0.0f,	0.0f,	0.0f,
-		0.5f,	0.5f,	0.5f,	0.3f,	0.2f,	0.5f,
-		-0.5f,	0.5f,	0.5f,	1.0f,	1.0f,	0.0f,
-		0.5f,	0.5f,	0.5f,	1.0f,	1.0f,	1.0f
+		0.35f,	-0.2f,	0.5f,	0.0f,	0.0f,	0.0f,
+		0.85f,	0.8f,	0.5f,	0.3f,	0.2f,	0.5f,
+		-0.15f,	0.8f,	0.5f,	1.0f,	1.0f,	0.0f,
+		0.85f,	0.8f,	0.5f,	1.0f,	1.0f,	1.0f
 	};
 	VertexBuffer* interleaved_vbo = new VertexBuffer();
 	interleaved_vbo->LoadData(interleaved, 6 * 4);
@@ -176,13 +177,13 @@ int main() {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//shader->Bind();
+		shader->Bind();
 
-		//vao->Bind();
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		//vao->UnBind();
+		vao->Bind();
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		vao->UnBind();
 
-		//shader->UnBind();
+		shader->UnBind();
 		shader2->Bind();
 
 		vao2->Bind();

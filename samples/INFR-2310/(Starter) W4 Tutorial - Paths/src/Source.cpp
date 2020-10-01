@@ -42,7 +42,9 @@ template<typename T>
 T Catmull(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 {
 	//TODO: Implement Catmull-Rom interpolation.
-	return p0;
+	return 0.5f * (2.0f * p1 + t * (-p0 + p2)
+		+ t * t * (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3)
+		+ t * t * t * (-p0 + 3.0f * p1 - 3.0f * p2 + p3));
 }
 
 //TODO (For part of this week's task): Implement your Bezier function.
@@ -54,7 +56,12 @@ T Catmull(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 template<typename T>
 T Bezier(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 {
-	return p0;
+	return LERP(Bezier2(p0, p1, p2, t), Bezier2(p1, p2, p3, t), t);
+}
+
+template<typename T>
+T Bezier2(const T& p0, const T& p1, const T& p2, float t) {
+	return LERP(LERP(p0, p1, t), LERP(p1, p2, t), t);
 }
 
 int main()
@@ -132,8 +139,43 @@ int main()
 		static bool listPanel = true;
 		ImGui::Begin("Waypoints", &listPanel, ImVec2(300, 200));
 
+		//ImGui button to change path modes 
+		if (ImGui::Button("Change Mode")) {
+			if (duckEntity.Get<CPathAnimator>().GetMode() == PathSampler::PathMode::CATMULL) {
+				duckEntity.Get<CPathAnimator>().SetMode(PathSampler::PathMode::BEZIER);
+				sampler.m_mode = PathSampler::PathMode::BEZIER;
+			}
+				
+			else {
+				duckEntity.Get<CPathAnimator>().SetMode(PathSampler::PathMode::CATMULL);
+				sampler.m_mode = PathSampler::PathMode::CATMULL;
+			}
+		}
+
+		//ImGui text to display the current path mode 
+		if (duckEntity.Get<CPathAnimator>().GetMode() == PathSampler::PathMode::CATMULL)
+			ImGui::Text("Current path mode: catmull-rom");
+		else
+			ImGui::Text("Current path mode: bezier");
+
 		//TODO: How do we add a waypoint?
+		if (ImGui::Button("Add")) {
+			points.push_back(Entity::Allocate());
+			auto& p = points.back();
+			p->Add<CMeshRenderer>(*p, *boxMesh, *unselectedMat);
+			p->transform.m_scale = glm::vec3(0.1f, 0.1f, 0.1f);
+
+			if (points.size() > 1) {
+				auto& lastP = points[points.size() - 2];
+				p->transform.m_pos = lastP->transform.m_pos + glm::vec3(0.2f, 0.0f, 0.0f);
+			}
+		}
+
 		//TODO: How do we remove a waypoint?
+		if (ImGui::Button("Remove") && points.size() > 0) {
+			points.pop_back();
+		}
+
 
 		//Interface for selecting a waypoint.
 		static size_t pointSelected = 0;
@@ -168,6 +210,10 @@ int main()
 			ImGui::Begin("Point Coordinates", &transformPanel, ImVec2(300, 100));
 
 			//TODO: How will we update our point's coordinates?
+			ImGui::InputFloat("X", &transform.m_pos.x);
+			ImGui::InputFloat("Y", &transform.m_pos.y);
+			ImGui::InputFloat("Z", &transform.m_pos.z);
+
 
 			ImGui::End();
 		}
