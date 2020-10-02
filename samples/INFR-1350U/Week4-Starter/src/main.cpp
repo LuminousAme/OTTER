@@ -65,7 +65,7 @@ bool initGLFW() {
 	}
 
 	//Create a new GLFW window
-	window = glfwCreateWindow(800, 800, "INFR1350U", nullptr, nullptr);
+	window = glfwCreateWindow(800, 800, "Ame Gilham - 100741352", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Set our window resized callback
@@ -109,13 +109,13 @@ int main() {
 	};
 
 	//VBO - Vertex buffer object
-	VertexBuffer* posVbo = new VertexBuffer();
+	VertexBuffer::sptr posVbo = VertexBuffer::Create();
 	posVbo->LoadData(points, 9);
 
-	VertexBuffer* color_vbo = new VertexBuffer();
+	VertexBuffer::sptr color_vbo = VertexBuffer::Create();
 	color_vbo->LoadData(colors, 9);
 
-	VertexArrayObject* vao = new VertexArrayObject();
+	VertexArrayObject::sptr vao = VertexArrayObject::Create();
 	vao->AddVertexBuffer(posVbo, {
 		BufferAttribute(0, 3, GL_FLOAT, false, 0, NULL)
 	});
@@ -131,26 +131,54 @@ int main() {
 		 0.5f,  1.0f, 0.0f,  1.0f, 1.0f, 1.0f
 	};
 
-	VertexBuffer* interleaved_vbo = new VertexBuffer();
+	VertexBuffer::sptr interleaved_vbo = VertexBuffer::Create();
 	interleaved_vbo->LoadData(interleaved, 6 * 4);
 
 	static const uint16_t indices[] = {
 		0, 1, 2,
 		1, 3, 2
 	};
-	IndexBuffer* interleaved_ibo = new IndexBuffer();
+	IndexBuffer::sptr interleaved_ibo = IndexBuffer::Create();
 	interleaved_ibo->LoadData(indices, 3 * 2);
 
 	size_t stride = sizeof(float) * 6;
-	VertexArrayObject* vao2 = new VertexArrayObject();
+	VertexArrayObject::sptr vao2 = VertexArrayObject::Create();
 	vao2->AddVertexBuffer(interleaved_vbo, {
 		BufferAttribute(0, 3, GL_FLOAT, false, stride, 0),
 		BufferAttribute(1, 3, GL_FLOAT, false, stride, sizeof(float) * 3),
 	});
 	vao2->SetIndexBuffer(interleaved_ibo);
 
+	//Create a pink, white, and grey Triangle for tutorial activity 
+	static const float interleaved3[] = { //there is no interleaved 2 don't worry, the 3 is for 3rd object
+		//     X      Y     Z       R     G    B
+			0.0f, -0.5f, -0.1f,  -1.0f, -1.0f, -1.0f,
+			 0.6f,  -0.5f, -0.1f,  1.0f, 0.8f, 1.0f,
+			 -0.6f,   -0.5f, -0.1f,  0.85f, 0.85f, 0.85f,
+			  0.0f,   0.2f, -0.1f,  0.3f, 0.3f, 0.3f
+	};
+
+	VertexBuffer::sptr interleaved_vbo3 = VertexBuffer::Create();
+	interleaved_vbo3->LoadData(interleaved3, 6 * 4);
+
+	static const uint16_t indices2[] = {
+		0, 1, 2,
+		1, 3, 2
+	};
+	IndexBuffer::sptr interleaved_ibo3 = IndexBuffer::Create();
+	interleaved_ibo3->LoadData(indices2, 3 * 2);
+
+	size_t stride3 = sizeof(float) * 6;
+	VertexArrayObject::sptr vao3 = VertexArrayObject::Create();
+	vao3->AddVertexBuffer(interleaved_vbo3, {
+		BufferAttribute(0, 3, GL_FLOAT, false, stride3, 0),
+		BufferAttribute(1, 3, GL_FLOAT, false, stride3, sizeof(float) * 3),
+		});
+	vao3->SetIndexBuffer(interleaved_ibo3);
+	//pink, white and grey triangle is now created
+
 	// Load our shaders
-	Shader* shader = new Shader();
+	Shader::sptr shader = Shader::Create();
 	shader->LoadShaderPartFromFile("shaders/vertex_shader.glsl", GL_VERTEX_SHADER);
 	shader->LoadShaderPartFromFile("shaders/frag_shader.glsl", GL_FRAGMENT_SHADER);
 	shader->Link();
@@ -160,11 +188,21 @@ int main() {
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	GLint xTransformLoc = glGetUniformLocation(shader->GetHandle(), "u_ModelViewProjection");
 	glm::mat4 transform = glm::mat4(1.0f);
+	glm::mat4 transform2 = glm::mat4(1.0f);
+	//create a transformation matrix for our tutorial acitvity pink, white, and grey triangle
+	glm::mat4 transform3 = glm::mat4(1.0f);
+
+	Camera::sptr camera = Camera::Create();
+	camera->SetPosition(glm::vec3(0, 1, -1));
+	camera->LookAt(glm::vec3(0.0f));
+
 
 	// Our high-precision timer
 	double lastFrame = glfwGetTime();
+
+	//control variable for field of view
+	float dir = -1.0; //controls if the field of view angle is increasing (positive) or decreasing (negative) 
 
 	///// Game loop /////
 	while (!glfwWindowShouldClose(window)) {
@@ -174,31 +212,46 @@ int main() {
 		double thisFrame = glfwGetTime();
 		float dt = static_cast<float>(thisFrame - lastFrame);
 		transform = glm::rotate(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 0, 1));
+		transform2 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, glm::sin(static_cast<float>(thisFrame))));
+		//set the details for the transform for the tutorial activity triangle
+		//translate it 
+		transform3 = glm::translate(glm::mat4(1.0f), glm::vec3(glm::sin(static_cast<float>(thisFrame * 1.5f)), 0.0f, 0.0f));
+		//add the rotation (multiply it in)
+		transform3 *= glm::rotate(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 0, 1));
+		
+		//change the field of view (cycles between 45 degrees and 135 degrees)
+		//check if it should change directions
+		if (camera->getFovDegrees() <= 45.0f || camera->getFovDegrees() >= 135.0f)
+			dir = -dir;
+
+		//calculate and set the new field of view angle
+		camera->SetFovDegrees(camera->getFovDegrees() + 15.f * dir * dt);
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shader->Bind();
-		glProgramUniformMatrix4fv(shader->GetHandle(), xTransformLoc, 1, false, glm::value_ptr(transform));
+		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform);
 
 		vao->Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		vao->UnBind();
 
+		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform2);
+
 		vao2->Bind();
 		glDrawElements(GL_TRIANGLES, interleaved_ibo->GetElementCount(), interleaved_ibo->GetElementType(), nullptr);
-		vao->UnBind();
+		vao2->UnBind();
+
+		//apply the transformation to the tutorial acitvity's trinagle and draw the triangle
+		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection()* transform3);
+		vao3->Bind();
+		glDrawElements(GL_TRIANGLES, interleaved_ibo3->GetElementCount(), interleaved_ibo3->GetElementType(), nullptr);
+		vao3->UnBind();
 
 		glfwSwapBuffers(window);
+		lastFrame = thisFrame;
 	}
-
-	delete shader;
-	delete vao;
-	delete vao2;
-	delete interleaved_vbo;
-	delete interleaved_ibo;
-	delete posVbo;
-	delete color_vbo;
 
 	// Clean up the toolkit logger so we don't leak memory
 	Logger::Uninitialize();

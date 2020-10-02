@@ -63,6 +63,9 @@ public:
 	/// </summary>
 	const glm::vec3& GetUp() const { return _up; }
 
+	//gets the field of view variable
+	inline float getFovDegrees() const { return glm::degrees(_fovRadians); }
+
 	/// <summary>
 	/// Gets the view matrix for this camera
 	/// </summary>
