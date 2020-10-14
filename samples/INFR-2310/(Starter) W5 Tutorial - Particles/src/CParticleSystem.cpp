@@ -194,6 +194,15 @@ namespace nou
 		m_data->vao->DrawElements(m_data->indices, m_data->numAlive);
 	}
 
+	void CParticleSystem::SetParticleData(const ParticleParam& Param)
+	{
+		size_t numParticles = (Param.maxParticles < MAX_PARTICLES)
+			? Param.maxParticles
+			: MAX_PARTICLES;
+
+		m_data = std::make_unique<ParticleData>(numParticles, Param);
+	}
+
 	void CParticleSystem::Emit()
 	{
 		//We can only emit if we have some "dead" particles

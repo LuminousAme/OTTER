@@ -348,7 +348,7 @@ int main() {
 		tKeyWatcher.Poll(window);
 
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-			transform3 = glm::translate(transform3, glm::vec3( 1.0f * dt, 0.0f, 0.0f));
+			transform3 = glm::translate(transform3, glm::vec3(1.0f * dt, 0.0f, 0.0f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			transform3 = glm::translate(transform3, glm::vec3(-1.0f * dt, 0.0f, 0.0f));
@@ -357,7 +357,7 @@ int main() {
 			transform3 = glm::translate(transform3, glm::vec3(0.0f, -1.0f * dt, 0.0f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			transform3 = glm::translate(transform3, glm::vec3(0.0f,  1.0f * dt, 0.0f));
+			transform3 = glm::translate(transform3, glm::vec3(0.0f, 1.0f * dt, 0.0f));
 		}
 				
 		transform = glm::rotate(glm::mat4(1.0f), static_cast<float>(thisFrame), glm::vec3(0, 1, 0));
@@ -385,7 +385,7 @@ int main() {
 		shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform3);
 		shader->SetUniformMatrix("u_Model", transform3);
 		shader->SetUniformMatrix("u_ModelRotation", glm::mat3(transform3));
-		vao3->Render();
+		vao4->Render();
 
 		RenderImGui();
 

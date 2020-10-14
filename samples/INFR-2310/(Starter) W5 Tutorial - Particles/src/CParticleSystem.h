@@ -92,6 +92,8 @@ namespace nou
 		void Update(float deltaTime);
 		void Draw();
 
+		void SetParticleData(const ParticleParam& Param);
+
 	private:
 
 		//Utility struct for depth-sorting our particles on the CPU.

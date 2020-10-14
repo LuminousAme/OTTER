@@ -82,6 +82,8 @@ public:
 			LOG_WARN("Ignoring uniform \"{}\"", name);
 		}
 	}
+
+
 	template <typename T>
 	void SetUniformMatrix(const std::string& name, const T& value, bool transposed = false) {
 		int location = __GetUniformLocation(name);
