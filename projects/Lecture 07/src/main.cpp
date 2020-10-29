@@ -17,7 +17,7 @@ void loadImage() {
 	int channels;
 	stbi_set_flip_vertically_on_load(true);
 
-	image = stbi_load("box.bmp", &width, &height, &channels, 0);
+	image = stbi_load("6textures.jpg", &width, &height, &channels, 0);
 
 	if (image)
 		std::cout << "Image loaded: " << width << " x " << height << " y " << std::endl;
@@ -258,46 +258,46 @@ int main() {
 	//uvs 
 	static const GLfloat uvs[] = {
 		//front face
-		0.0f, 0.0f,
-		1.0f, 0.0f,
+		0.0f, 0.5f,
+		0.33f, 0.5f,
 		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
+		0.33f, 0.5f,
+		0.33f, 1.0f,
 		0.0f, 1.0f,
 		//right face
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		0.34f, 0.5f,
+		0.66f, 0.5f,
+		0.34f, 1.0f,
+		0.66f, 0.5f,
+		0.66f, 1.0f,
+		0.34f, 1.0f,
 		//left face
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
+		0.67f, 0.5f,
+		1.0f, 0.5f,
+		0.67f, 1.0f,
+		1.0f, 0.5f,
 		1.0f, 1.0f,
-		0.0f, 1.0f,
+		0.67f, 1.0f,
 		//back face
-		0.0f, 1.0f,
-		1.0f, 0.0f,
+		0.0f, 0.5f,
+		0.33f, 0.0f,
 		0.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
+		0.0f, 0.5f,
+		0.33f, 0.5f,
+		0.33f, 0.0f,
 		//top face
-		0.0f, 0.0f,
+		0.34f, 0.0f,
+		0.66f, 0.0f,
+		0.34f, 0.5f,
+		0.66f, 0.0f,
+		0.66f, 0.5f,
+		0.34f, 0.5f,
+		//bottom face
+		0.67f, 0.5f,
 		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
-		//bottom face, wrong
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 1.0f,
+		0.67f, 0.0f,
+		0.67f, 0.5f,
+		1.0f, 0.5f,
 		1.0f, 0.0f
 	};
 

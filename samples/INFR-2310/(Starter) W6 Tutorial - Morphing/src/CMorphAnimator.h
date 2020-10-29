@@ -30,6 +30,9 @@ namespace nou
 		void Update(float deltaTime);
 
 		//TODO: Add functions to set frames and in-between frame time.
+		void setFrames(const std::vector<std::unique_ptr<Mesh>>& frames);
+		void SetFrameTime(float frameTime);
+		void SetLoopBackwards(bool setting);
 
 		protected:
 
@@ -41,8 +44,7 @@ namespace nou
 
 			//TODO: You'll need to define a way to store and manage full
 			//animation clips for the exercise.
-			const Mesh* frame0;
-			const Mesh* frame1;
+			std::vector<const Mesh*> frames;
 			//The time inbetween frames.
 			float frameTime;
 
@@ -53,6 +55,9 @@ namespace nou
 		std::unique_ptr<AnimData> m_data;
 
 		float m_timer;
+		int m_currentFrame;
 		bool m_forwards;
+		//bool to control wheter or not the animation should play backwards when looping (true), or just restart at the first frame (false)
+		bool m_loopBackwards; 
 	};
 }

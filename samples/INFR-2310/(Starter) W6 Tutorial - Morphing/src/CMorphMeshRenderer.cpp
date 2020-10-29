@@ -35,6 +35,17 @@ namespace nou
 		const VertexBuffer* vbo;
 
 		//TODO: What needs to happen here?
+		if ((vbo = frame0.GetVBO(Mesh::Attrib::POSITION)))
+			m_vao->BindAttrib(*vbo, static_cast<GLint>(Attrib::POSITION_0));
+
+		if ((vbo = frame1.GetVBO(Mesh::Attrib::POSITION)))
+			m_vao->BindAttrib(*vbo, static_cast<GLint>(Attrib::POSITION_1));
+
+		if ((vbo = frame0.GetVBO(Mesh::Attrib::NORMAL)))
+			m_vao->BindAttrib(*vbo, static_cast<GLint>(Attrib::NORMAL_0));
+		
+		if ((vbo = frame1.GetVBO(Mesh::Attrib::NORMAL)))
+			m_vao->BindAttrib(*vbo, static_cast<GLint>(Attrib::NORMAL_1));
 
 		m_t = t;
 	}
@@ -50,6 +61,10 @@ namespace nou
 		//or even automatically detecting uniform names.
 
 		//TODO: What do we need to send to our shader program?
+		ShaderProgram::Current()->SetUniform("viewproj", CCamera::current->Get<CCamera>().GetVP());
+		ShaderProgram::Current()->SetUniform("model", transform.GetGlobal());
+		ShaderProgram::Current()->SetUniform("normal", transform.GetNormal());
+		ShaderProgram::Current()->SetUniform("t", m_t);
 
 		m_vao->Draw();
 	}

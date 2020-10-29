@@ -56,6 +56,55 @@ namespace nou
 		//(You will be REPLACING what is here,
 		//not just adding to it.)
 
+		//add to the timer
+		m_timer += deltaTime;
+		//if the animation has ended, restart it 
+		while (m_timer >= m_anim.duration)
+			m_timer -= m_anim.duration;
+
+
+		for (size_t i = 0; i < m_anim.data.size(); i++) {
+			JointPose& pose = m_result[m_anim.data[i].jointInd];
+
+			if (m_anim.data[i].posFrames > 0) {
+				pose.pos = m_anim.data[i].posKeys[0];
+			}
+
+			//check if there is only 1 rotation keyframe
+			if (m_anim.data[i].rotFrames == 1) {
+				//if there is just set it to that frame
+				pose.rotation = m_anim.data[i].rotKeys[0];
+			}
+			//otherwise, if there's more than 1 cycle through them
+			else if (m_anim.data[i].rotFrames > 1) {
+				//get the current and next frame
+				//grab the current frame out of the member variable
+				int currentFrame = m_rotFrame[i]; 
+				//update the current frame if the time is now beyond the end of the current keyframe
+				while (m_timer > m_anim.data[i].rotTimes[currentFrame]) {
+					currentFrame++;
+					m_rotFrame[i]++;
+				}
+
+				//calculate the next keyframe
+				int nextFrame = currentFrame + 1;
+				//if the next keyframe would go out of outbounds, reset it to zero
+				if (nextFrame >= m_anim.data[i].rotFrames)
+					nextFrame = 0;
+
+				//having the current and next keyframe indices, we can calculate t 
+				float t = (m_timer - m_anim.data[i].rotTimes[currentFrame]) / 
+					(m_anim.data[i].rotTimes[nextFrame] - m_anim.data[i].rotTimes[currentFrame]);
+
+				//with that we can slerp the rotations
+				pose.rotation = glm::mix(m_anim.data[i].rotKeys[currentFrame], m_anim.data[i].rotKeys[nextFrame], t);
+
+				//reset to current frame to zero if it's reached the end of the animation
+				if (currentFrame >= m_anim.data[i].rotFrames - 1) {
+					m_rotFrame[i] = 0;
+				}
+			}
+		}
 	}
 
 	void SkeletalAnimClip::Apply(Skeleton& skeleton)
@@ -66,6 +115,7 @@ namespace nou
 			Joint& joint = skeleton.m_joints[i];
 			joint.m_pos = m_result[i].pos;
 			joint.m_rotation = m_result[i].rotation;
+
 		}
 	}
 }
