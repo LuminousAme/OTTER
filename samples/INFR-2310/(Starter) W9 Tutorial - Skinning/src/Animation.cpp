@@ -48,11 +48,31 @@ namespace nou
 
 		m_posFrame.resize(m_anim.data.size());
 		std::fill(m_posFrame.begin(), m_posFrame.end(), 0);
+
+		paused = false;
+		shouldLoop = true;
+		playBackFactor = 1.0f;
 	}
 
 	void SkeletalAnimClip::Update(float deltaTime, const Skeleton& skeleton)
 	{
-		//TODO: Complete this function.
+		if (!paused) {
+			//TODO: Complete this function.
+			if (m_anim.duration != 0.0f) {
+				if(m_timer <= m_anim.duration) m_timer += deltaTime * playBackFactor;
+
+				if (m_timer > m_anim.duration && shouldLoop) {
+					std::fill(m_rotFrame.begin(), m_rotFrame.end(), 0);
+					std::fill(m_posFrame.begin(), m_posFrame.end(), 0);
+				}
+
+				while (m_timer > m_anim.duration && shouldLoop)
+					m_timer -= m_anim.duration;
+			}
+
+			UpdateRotations();
+			UpdatePositions();
+		}
 	}
 
 	void SkeletalAnimClip::Apply(Skeleton& skeleton)
@@ -64,6 +84,31 @@ namespace nou
 			joint.m_pos = m_result[i].pos;
 			joint.m_rotation = m_result[i].rotation;
 		}
+	}
+
+	void SkeletalAnimClip::Restart()
+	{
+		std::fill(m_rotFrame.begin(), m_rotFrame.end(), 0);
+		std::fill(m_posFrame.begin(), m_posFrame.end(), 0);
+		m_timer = 0.0f;
+	}
+
+	//sets if it should be paused
+	void SkeletalAnimClip::SetIsPaused(bool _paused)
+	{
+		paused = _paused;
+	}
+
+	//sets if it should loop
+	void SkeletalAnimClip::SetShouldLoop(bool _shouldLoop)
+	{
+		shouldLoop = _shouldLoop;
+	}
+
+	//sets the playback speed
+	void SkeletalAnimClip::SetPlaybackSpeed(float _playbackSpeed)
+	{
+		playBackFactor = _playbackSpeed;
 	}
 
 	void SkeletalAnimClip::UpdatePositions()

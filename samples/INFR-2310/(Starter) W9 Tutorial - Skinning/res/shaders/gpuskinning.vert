@@ -35,11 +35,18 @@ layout(location = 2) out vec2 outUV;
 void main()
 {
     //TODO: Skinning!
+	mat4 skinmat = 
+		inWeights.x * jointMatrices[int(inJoints.x)] + 
+		inWeights.y * jointMatrices[int(inJoints.y)] + 
+		inWeights.z * jointMatrices[int(inJoints.z)] +
+		inWeights.w * jointMatrices[int(inJoints.w)];
 
-    outPos = model * inPos;
+	vec4 skinnedPos = skinmat * inPos;
+
+    outPos = model * skinnedPos;
 
     //TODO: How do we skin our normals?
-    outNorm = normalize(normal * inNorm);
+    outNorm = normalize(normal * (skinmat * vec4(inNorm,0.0)).xyz);
 
     outUV = inUV;
 

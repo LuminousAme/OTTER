@@ -64,6 +64,21 @@ namespace nou
 		//Apply the output of this node to a skeleton.
 		void Apply(Skeleton& skeleton);
 
+		//retstarts this node's animation
+		void Restart();
+
+		//sets if it's paused or not
+		void SetIsPaused(bool _paused);
+		//sets if it should loop or not
+		void SetShouldLoop(bool _shouldLoop);
+		//sets the playerback speed
+		void SetPlaybackSpeed(float _playbackSpeed);
+
+		//getters
+		bool GetIsPaused() { return paused; }
+		bool GetShouldLoop() { return shouldLoop; }
+		float GetPlaybackSpeed() { return playBackFactor; }
+
 		protected:
 
 		//Our local timer.
@@ -76,6 +91,13 @@ namespace nou
 
 		//The result of our animation update.
 		std::vector<JointPose> m_result;
+
+		//if the animation is paused
+		bool paused;
+		//if the animation should loop
+		bool shouldLoop;
+		//rate at which the animation should playback
+		float playBackFactor;
 
 		void UpdateRotations();
 		void UpdatePositions();

@@ -136,6 +136,35 @@ int main()
 
 		//Put any ImGUI code you need in here.
 		//(Don't forget to call Imgui::Begin and Imgui::End!)
+		ImGui::Begin("Animation Control");
+
+		//control if the animation is paused
+		bool paused = boiEntity.Get<CAnimator>().GetClip()->GetIsPaused();
+		std::string buttonName0 = (paused) ? "play" : "pause";
+		if (ImGui::Button(buttonName0.c_str())) {
+			boiEntity.Get<CAnimator>().GetClip()->SetIsPaused(!paused);
+		}
+
+		//control if the animation is looping
+		bool looping = boiEntity.Get<CAnimator>().GetClip()->GetShouldLoop();
+		std::string buttonName1 = (looping) ? "stop looping" : "start looping";
+		if (ImGui::Button(buttonName1.c_str())) {
+			boiEntity.Get<CAnimator>().GetClip()->SetShouldLoop(!looping);
+		}
+
+		//button to restart the animation
+		if (ImGui::Button("Restart Animation")) {
+			boiEntity.Get<CAnimator>().GetClip()->Restart();
+		}
+
+		//control the player back speed for the animation
+		float playbackSpeed = boiEntity.Get<CAnimator>().GetClip()->GetPlaybackSpeed();
+		if (ImGui::SliderFloat("Playback speed", &playbackSpeed, 0.0f, 4.0f)) {
+			boiEntity.Get<CAnimator>().GetClip()->SetPlaybackSpeed(playbackSpeed);
+		}
+
+		ImGui::End();
+			
 
 		App::EndImgui();
 
