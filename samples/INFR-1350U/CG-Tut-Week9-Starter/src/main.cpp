@@ -96,7 +96,7 @@ bool initGLFW() {
 #endif
 	
 	//Create a new GLFW window
-	window = glfwCreateWindow(800, 800, "INFR1350U", nullptr, nullptr);
+	window = glfwCreateWindow(800, 800, "Ame Gilham - #100741352", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Set our window resized callback
@@ -333,6 +333,7 @@ int main() {
 		Texture2D::sptr diffuse = Texture2D::LoadFromFile("images/Stone_001_Diffuse.png");
 		Texture2D::sptr diffuse2 = Texture2D::LoadFromFile("images/box.bmp");
 		Texture2D::sptr specular = Texture2D::LoadFromFile("images/Stone_001_Specular.png"); 
+		Texture2D::sptr reflectiveMap = Texture2D::LoadFromFile("images/reflectionmap.png");
 
 		// Load the cube map
 		//TextureCubeMap::sptr environmentMap = TextureCubeMap::LoadFromImages("images/cubemaps/skybox/sample.jpg");
@@ -385,11 +386,39 @@ int main() {
 		reflectiveMat->Set("u_EnvironmentRotation", glm::mat3(
 			glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0))));
 
+		// Load a shader for our mixed reflective and nonrelfetive material
+		Shader::sptr mixedReflectiveShader = Shader::Create();
+		mixedReflectiveShader->LoadShaderPartFromFile("shaders/vertex_shader.glsl", GL_VERTEX_SHADER);
+		mixedReflectiveShader->LoadShaderPartFromFile("shaders/frag_binn_phong_textured_reflection.glsl", GL_FRAGMENT_SHADER);
+		mixedReflectiveShader->Link();
 
+		// These are our application / scene level uniforms that don't necessarily update
+		// every frame
+		mixedReflectiveShader->SetUniform("u_LightPos", lightPos);
+		mixedReflectiveShader->SetUniform("u_LightCol", lightCol);
+		mixedReflectiveShader->SetUniform("u_AmbientLightStrength", lightAmbientPow);
+		mixedReflectiveShader->SetUniform("u_SpecularLightStrength", lightSpecularPow);
+		mixedReflectiveShader->SetUniform("u_AmbientCol", ambientCol);
+		mixedReflectiveShader->SetUniform("u_AmbientStrength", ambientPow);
+		mixedReflectiveShader->SetUniform("u_LightAttenuationConstant", 1.0f);
+		mixedReflectiveShader->SetUniform("u_LightAttenuationLinear", lightLinearFalloff);
+		mixedReflectiveShader->SetUniform("u_LightAttenuationQuadratic", lightQuadraticFalloff);
+
+		ShaderMaterial::sptr mixedReflectiveMat = ShaderMaterial::Create();
+		mixedReflectiveMat->Shader = mixedReflectiveShader;
+		mixedReflectiveMat->Set("s_Diffuse", diffuse);
+		mixedReflectiveMat->Set("u_Shininess", 8.0f);
+		mixedReflectiveMat->Set("s_Environment", environmentMap);
+		mixedReflectiveMat->Set("u_EnvironmentRotation", glm::mat3(
+			glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0))));
+		mixedReflectiveMat->Set("s_ReflectiveMap", reflectiveMap);
+
+
+		
 		GameObject sceneObj = scene->CreateEntity("scene_geo");
 		{
 			VertexArrayObject::sptr sceneVao = NotObjLoader::LoadFromFile("Sample.notobj");
-			sceneObj.emplace<RendererComponent>().SetMesh(sceneVao).SetMaterial(material0);
+			sceneObj.emplace<RendererComponent>().SetMesh(sceneVao).SetMaterial(mixedReflectiveMat);
 			sceneObj.get<Transform>().SetLocalPosition(0.0f, 0.0f, 0.0f);
 		}
 
