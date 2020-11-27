@@ -43,6 +43,17 @@ namespace nou
 	void SkeletalAnim::MakeDiffWith(const Skeleton& skeleton)
 	{
 		//TODO: Complete this function.
+		isDiffClip = true;
+
+		for (size_t i = 0; i < data.size(); i++) {
+			for (size_t j = 0; j < data[i].posFrames; j++) {
+				data[i].posKeys[j] = data[i].posKeys[j] - skeleton.m_joints[data[i].jointInd].m_basePos;
+			}
+
+			for (size_t j = 0; j < data[i].rotFrames; j++) {
+				data[i].rotKeys[j] = data[i].rotKeys[j] * glm::inverse(skeleton.m_joints[data[i].jointInd].m_baseRotation);
+			}
+		}
 	}
 
 	SkeletalAnimNode::JointPose::JointPose()
@@ -248,23 +259,55 @@ namespace nou
 
 	void SkeletalAnimNode::UpdateOutput(const Skeleton& skeleton)
 	{
-		for (size_t i = 0; i < m_lhs.size(); ++i)
-		{
-			//If we're a diff clip, stack the result of our animation
-			//with the skeleton's base transform.
-			//Otherwise, just copy the LHS data outright.
-			m_output[i].pos = (m_anim.isDiffClip)
-				? skeleton.m_joints[i].m_basePos + m_lhs[i].pos
-				: m_lhs[i].pos;
+		if (m_rhs == nullptr || m_mode == BlendMode::PASS) {
+			for (size_t i = 0; i < m_lhs.size(); ++i)
+			{
+				//If we're a diff clip, stack the result of our animation
+				//with the skeleton's base transform.
+				//Otherwise, just copy the LHS data outright.
+				m_output[i].pos = (m_anim.isDiffClip)
+					? skeleton.m_joints[i].m_basePos + m_lhs[i].pos
+					: m_lhs[i].pos;
 
-			m_output[i].rotation = (m_anim.isDiffClip)
-				? m_lhs[i].rotation * skeleton.m_joints[i].m_baseRotation
-				: m_lhs[i].rotation;
+				m_output[i].rotation = (m_anim.isDiffClip)
+					? m_lhs[i].rotation * skeleton.m_joints[i].m_baseRotation
+					: m_lhs[i].rotation;
+			}
+
+			return;
 		}
 
-		return;
+		const std::vector<JointPose>& rhs_output = m_rhs->GetOutput();
+
+		if (rhs_output.size() != m_output.size())
+			return;
+
+		switch (m_mode) {
+			case BlendMode::BLEND:
+				for (size_t i = 0; i < m_output.size(); i++) {
+					m_output[i].pos = glm::mix(rhs_output[i].pos, m_lhs[i].pos, m_blendParam);
+
+					m_output[i].rotation = glm::mix(rhs_output[i].rotation, m_lhs[i].rotation, m_blendParam);
+				}
+				break;
+
+			case BlendMode::ADD:
+				for (size_t i = 0; i < m_output.size(); i++) {
+					m_output[i].pos = rhs_output[i].pos + m_lhs[i].pos;
+
+					m_output[i].rotation = m_lhs[i].rotation * rhs_output[i].rotation;
+
+					m_output[i].pos = glm::mix(rhs_output[i].pos, m_output[i].pos, m_blendParam);
+
+					m_output[i].rotation = glm::mix(rhs_output[i].rotation, m_output[i].rotation, m_blendParam);
+				}
+				break;
+			default:
+				break;
+		}
 
 		//TODO: Complete this function.
+
 	}
 
 	Blendtree::Blendtree(const Skeleton& skeleton) 
@@ -279,8 +322,17 @@ namespace nou
 
 	SkeletalAnimNode* Blendtree::Insert(const SkeletalAnim& anim, SkeletalAnimNode::BlendMode mode, float blendParam)
 	{
-		//TODO: Complete this function.
-		return nullptr;
+		std::unique_ptr<SkeletalAnimNode> clip = std::make_unique<SkeletalAnimNode>(anim, *m_skeleton);
+
+		if (!m_tree.empty()) {
+			clip->SetRHS(m_tree.front().get(), mode, blendParam);
+		}
+
+		SkeletalAnimNode* newClip = clip.get();
+
+		m_tree.push_front(std::move(clip));
+
+		return newClip;
 	}
 
 	void Blendtree::Update(float deltaTime, const Skeleton& skeleton)

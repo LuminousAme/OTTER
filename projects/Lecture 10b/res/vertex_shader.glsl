@@ -19,10 +19,10 @@ void main() {
 
 	//height map
 	vec3 vert = vertex_pos;
-	//vert.y = texture(myTextureSampler, vertex_uv).r;
+	vert.y = texture(myTextureSampler, vertex_uv).r;
 
 	//sin
-	vert.y = 0.2 * sin(vert.x * 4.0 + time * speed);
+	//vert.y = 0.2 * sin(vert.x * 4.0 + time * speed);
 	
 	gl_Position = MVP * vec4(vert, 1.0);
 	//gl_Position = MVP * vec4(vertex_pos, 1.0);

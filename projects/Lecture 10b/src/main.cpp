@@ -39,7 +39,7 @@ bool initGLFW() {
 	}
 
 	//Create a new GLFW window
-	window = glfwCreateWindow(800, 800, "Window", nullptr, nullptr);
+	window = glfwCreateWindow(800, 800, "Ame Gilham - 100741352 - Lecture 10 Hands On", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	return true;
